@@ -1,3 +1,4 @@
+from cookies import cookies
 import itertools
 import models
 import re
@@ -6,8 +7,6 @@ from bs4 import BeautifulSoup
 
 def get(url):
     full_url = "http://games.espn.com" + url
-    cookies = {
-    }
     obj = requests.get(full_url, cookies=cookies)
     return obj.text
 
