@@ -7,8 +7,6 @@ from bs4 import BeautifulSoup
 def get(url):
     full_url = "http://games.espn.com" + url
     cookies = {
-        "SWID":"{CBF5574D-1CD0-4DD6-AB9A-AADA655EDBB3}",
-        "espn_s2": "AEALEoDxCLTsGvmab2PZbH%2FLxlLG%2BufIFwyMn95kMFL7ZXtGPF0MEE2yGM1wD12CfcVreRQVbCAO010T8Um8vLK0KInEkoA6Q0Wx0QbQgtqBrHEsg1putUNp7AL%2BDAPiHrKu%2B8kTvoA37CoCmg3BBGYB8UpcAwThu0fiH0ZW8Q8IgzX0Cz9EhMH0%2B9%2BLQ%2Bh3bNrmOIfLMRd4G%2Bn5Z3JMpyWm7VWraVffwiAsYv%2Bd1AsybhgkdEI7NukYrQdRR6QnApkxrzdIYjtwMk6eNqxEPUvx",
     }
     obj = requests.get(full_url, cookies=cookies)
     return obj.text
