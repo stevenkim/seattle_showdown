@@ -47,7 +47,6 @@ def get_game_stats(week, game_link):
 
     def read_column(columns):
         column = read_column_raw(columns)
-        print column
         if column is None:
             return "0"
         val = column.string
@@ -83,6 +82,7 @@ def get_game_stats(week, game_link):
             data = {
                 "game_id": game_id,
                 "team_id": team_id,
+                "week": week,
             }
             columns = row.select("td")
             data["slot"] = read_column(columns)
@@ -138,6 +138,7 @@ def get_game_stats(week, game_link):
             data = {
                 "game_id": game_id,
                 "team_id": team_id,
+                "week": week,
             }
             columns = row.select("td")
             data["slot"] = read_column(columns)
@@ -187,6 +188,7 @@ def get_game_stats(week, game_link):
             data = {
                 "game_id": game_id,
                 "team_id": team_id,
+                "week": week,
             }
             columns = row.select("td")
             data["slot"] = read_column(columns)
@@ -245,7 +247,7 @@ with open("data/00header.csv", "w") as fp:
     fp.write(models.PlayerGameStats.getHeaderCSVRow())
     fp.write("\n")
 
-for week in range(4, 17):
+for week in range(1, 17):
     stats_for_week = []
     for game in get_links_for_week(week):
         stats_for_week.extend(get_game_stats(week, game))

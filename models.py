@@ -50,6 +50,7 @@ class Game(BaseModel):
 
 class PlayerGameStats(BaseModel):
     FIELDS = [
+        "week",
         "player_id",
         "game_id",
         "team_id",

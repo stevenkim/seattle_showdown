@@ -1,1 +1,0 @@
-player_id,game_id,team_id,slot,player_name,player_pos,pass_comps,pass_atts,pass_yards,pass_tds,pass_ints,rush_attempts,rush_yards,rush_tds,receptions,rec_yards,rec_tds,rec_targets,two_pt,fumbles_lost,misc_td,fgm_1_39,fga_1_39,fgm_40_49,fga_40_49,fgm_50,fga_50,fgm,fga,fgm_xp,fga_xp,def_tds,def_ints,def_fumbles_rec,def_sacks,def_safeties,def_blocks,def_points_allowed,total_points
