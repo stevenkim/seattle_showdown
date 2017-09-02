@@ -1,3 +1,4 @@
 # ignore stuff
 cookies.py
+config.ini
 *.pyc
