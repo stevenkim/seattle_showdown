@@ -1,0 +1,10 @@
+down,yardline,yards_to_go,count,fantasy_points,avg_fantasy_points
+1,fg,long,1,0.16,0.16
+1,midfield,long,2,0.76,0.38
+1,redzone,long,1,0.0,0.0
+2,midfield,short,1,0.0,0.0
+2,redzone,long,1,0.0,0.0
+2,redzone,medium,1,0.28,0.28
+3,midfield,medium,1,0.0,0.0
+3,redzone,long,1,0.16,0.16
+4,midfield,medium,1,0.28,0.28

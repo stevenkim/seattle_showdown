@@ -53,13 +53,13 @@ def classify_play(play):
     }
 
 
-def compute_qb_passing_dvoa():
+def compute_qb_passing_dvoa(period):
     db = nfldb.connect()
     q = (nfldb.Query(db)
-        .game(season_year=base.CONTEXT['season_year'],
-            week=base.CONTEXT['week'], season_type='Regular')
+        .game(season_year=period.season_year,
+            week=period.week, season_type='Regular')
         .player(position='QB')
-        #.limit(10)
+        .limit(10)
         .as_play_players())
     play_key_tuples = {} # holds play_key => [total_ff_score, total]
 

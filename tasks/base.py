@@ -1,14 +1,22 @@
 from os import path, makedirs
 
-CONTEXT = {}
+class DatePeriod:
+    def __init__(self, season_year, week, season_type='Regular'):
+        self.season_year = season_year
+        self.week = week
+        self.season_type = season_type
 
-def set_context(context):
-    global CONTEXT
-    assert context['season_year']
-    assert context['week']
-    assert context['season_type']
-    assert len(CONTEXT) == 0, 'don\'t call this twice'
-    CONTEXT = context
+    def offset(self, number_of_weeks):
+        new_week = self.week + number_of_weeks
+        new_season = self.season_year
+        if new_week > 17:
+            new_season += 1
+            new_week = 1
+        elif new_week < 1:
+            new_season -= 1
+            new_week = 17
+
+        return DatePeriod(new_season, new_week, self.season_type)
 
 class Task:
     def __init__(self, dependencies=[], **kwargs):
@@ -21,16 +29,13 @@ class Task:
     def doit(self):
         raise NotImplementedError()
 
-    def run(self, task_id, season_year, week, season_type='Regular'):
+    def run(self, task_id, date_period):
         self.task_id = task_id
-        self.season_year = season_year
-        self.week = week
-        self.season_type = season_type
-        self.doit()
+        self.doit(date_period)
 
-    def _get_data_file(self, filename):
+    def _get_data_file(self, filename, date_period):
         folder = path.join('data', '%d_%02d_%s' % (
-            self.season_year, self.week, self.season_type))
+            date_period.season_year, date_period.week, date_period.season_type))
         if not path.exists(folder):
             makedirs(folder)
         return path.join(folder, '%s_%s' % (self.task_id, filename))
@@ -41,7 +46,7 @@ class NFLDBQueryTask(Task):
         self.func = kwargs['nfldb_func']
         self.csv = kwargs['csv']
 
-    def doit(self):
-        results = self.func()
-        filepath = self._get_data_file(self.csv)
+    def doit(self, date_period):
+        results = self.func(date_period)
+        filepath = self._get_data_file(self.csv, date_period)
         results.to_csv(filepath)
