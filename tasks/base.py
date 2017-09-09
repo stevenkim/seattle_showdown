@@ -1,5 +1,9 @@
 from os import path, makedirs
 
+class DAG:
+    def __init(self, tasks):
+        self.tasks = tasks
+
 class DatePeriod:
     def __init__(self, season_year, week, season_type='Regular'):
         self.season_year = season_year
@@ -18,6 +22,13 @@ class DatePeriod:
 
         return DatePeriod(new_season, new_week, self.season_type)
 
+    def get_data_file(self, filename):
+        folder = path.join('data', '%d_%02d_%s' % (
+            self.season_year, self.week, self.season_type))
+        if not path.exists(folder):
+            makedirs(folder)
+        return path.join(folder, filename)
+
 class Task:
     def __init__(self, dependencies=[], **kwargs):
         self.dependencies = dependencies
@@ -33,13 +44,6 @@ class Task:
         self.task_id = task_id
         self.doit(date_period)
 
-    def _get_data_file(self, filename, date_period):
-        folder = path.join('data', '%d_%02d_%s' % (
-            date_period.season_year, date_period.week, date_period.season_type))
-        if not path.exists(folder):
-            makedirs(folder)
-        return path.join(folder, '%s_%s' % (self.task_id, filename))
-
 
 class NFLDBQueryTask(Task):
     def setkwargs(self, **kwargs):
@@ -48,5 +52,5 @@ class NFLDBQueryTask(Task):
 
     def doit(self, date_period):
         results = self.func(date_period)
-        filepath = self._get_data_file(self.csv, date_period)
+        filepath = date_period.get_data_file(self.csv)
         results.to_csv(filepath)

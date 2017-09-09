@@ -90,5 +90,5 @@ def compute_qb_passing_dvoa(period):
 
 qb_passing_dvoa = base.NFLDBQueryTask(
     nfldb_func=compute_qb_passing_dvoa,
-    csv='passing_avg.csv',
+    csv='dvoa_passing_avg_weekly.csv',
 )

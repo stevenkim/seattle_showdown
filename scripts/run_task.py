@@ -7,7 +7,7 @@ parser.add_argument('module')
 parser.add_argument('season_year', type=int)
 parser.add_argument('week', type=int)
 parser.add_argument('--season_type')
-parser.add_argument('--fill_weeks', nargs='?', type=int, default=0)
+parser.add_argument('--fill_weeks', nargs='?', type=int, default=1)
 args = parser.parse_args()
 
 task_module = args.module
