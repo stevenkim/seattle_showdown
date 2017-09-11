@@ -1,7 +1,8 @@
+from dvoa_crap import qb_passing_dvoa_weekly_task
 import base
 import pandas as pd
 
-def aggregate_qb_dvoa(period):
+def qb_passing_dvoa_agg_func(period):
     # start at season 2016
     frames = []
     while period.season_year >= 2016 and period.week >= 1:
@@ -10,11 +11,18 @@ def aggregate_qb_dvoa(period):
         period = period.offset(-1)
     df = pd.concat(frames).groupby(['down', 'yardline', 'yards_to_go']).sum()
     df['avg_fantasy_points'] = df['fantasy_points'] / df['count']
-    print df
     return df
 
 
-qb_passing_dvoa_agg = base.NFLDBQueryTask(
-    nfldb_func=aggregate_qb_dvoa,
+qb_passing_dvoa_agg_task = base.NFLDBQueryTask(
+    id='qb_passing_dvoa_task',
+    dependencies=[
+        #qb_passing_dvoa_weekly_task.date_period_offset(-1),
+    ],
+    nfldb_func=qb_passing_dvoa_agg_func,
     csv='dvoa_passing_agg.csv',
 )
+
+TASKS=[
+    qb_passing_dvoa_agg_task,
+]

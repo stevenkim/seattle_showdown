@@ -52,14 +52,13 @@ def classify_play(play):
         'yards_to_go': normalize_yards_to_go(play.yards_to_go),
     }
 
-
 def compute_qb_passing_dvoa(period):
     db = nfldb.connect()
     q = (nfldb.Query(db)
         .game(season_year=period.season_year,
             week=period.week, season_type='Regular')
         .player(position='QB')
-        .limit(10)
+        # .limit(10)
         .as_play_players())
     play_key_tuples = {} # holds play_key => [total_ff_score, total]
 
@@ -88,7 +87,11 @@ def compute_qb_passing_dvoa(period):
     df['avg_fantasy_points'] = df['fantasy_points'] / df['count']
     return df
 
-qb_passing_dvoa = base.NFLDBQueryTask(
+qb_passing_dvoa_weekly_task = base.NFLDBQueryTask(
+    id='qb_passing_dvoa_weekly_task',
     nfldb_func=compute_qb_passing_dvoa,
     csv='dvoa_passing_avg_weekly.csv',
 )
+TASKS=[
+    qb_passing_dvoa_weekly_task,
+]
