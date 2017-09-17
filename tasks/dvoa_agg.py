@@ -1,5 +1,6 @@
 from dvoa_crap import qb_passing_dvoa_weekly_task
 import base
+import nfldb
 import pandas as pd
 
 def qb_passing_dvoa_agg_func(period):
@@ -23,6 +24,27 @@ qb_passing_dvoa_agg_task = base.NFLDBQueryTask(
     csv='dvoa_passing_agg.csv',
 )
 
+def qb_passing_dvoa_agg_player_func(period):
+    db = nfldb.connect()
+    q = (nfldb.Query(db)
+        .game(season_year=period.season_year,
+            week=period.week, season_type='Regular')
+        .player(position='QB')
+        .as_play_players())
+    for play_player in q:
+        print play_player
+
+
+qb_passing_dvoa_agg_player_task = base.NFLDBQueryTask(
+    id='qb_passing_dvoa_agg_player_task',
+    dependencies=[
+        #qb_passing_dvoa_agg_task,
+    ],
+    nfldb_func=qb_passing_dvoa_agg_player_func,
+    csv='dvoa_passing_agg_player.csv',
+)
+
 TASKS=[
     qb_passing_dvoa_agg_task,
+    qb_passing_dvoa_agg_player_task,
 ]
