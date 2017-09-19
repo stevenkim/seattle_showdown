@@ -26,6 +26,7 @@ def info(fmt, *args):
         indent += '  '
     print(__get_indent()+'['+str(datetime.datetime.now())+'][INFO] '+(fmt % args))
 
+    
 class DAG:
     def __init__(self, tasks, filter_regex='', execute_dependents=False,
         force_run=False):
