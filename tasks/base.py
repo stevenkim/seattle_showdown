@@ -8,24 +8,29 @@ import re
 DEBUG = True
 INDENT = 0
 
-def debug(fmt, *args):
-    if not DEBUG:
-        return
+def __get_indent():
     indent = ''
     for i in range(INDENT):
         indent += '  '
+    return indent
 
-    print(indent+'['+str(datetime.datetime.now())+'][DEBUG] '+(fmt % args))
+
+def debug(fmt, *args):
+    if not DEBUG:
+        return
+    print(__get_indent()+'['+str(datetime.datetime.now())+'][DEBUG] '+(fmt % args))
 
 def info(fmt, *args):
     indent = ''
     for i in range(INDENT):
         indent += '  '
-    print(indent+'['+str(datetime.datetime.now())+'][INFO] '+(fmt % args))
+    print(__get_indent()+'['+str(datetime.datetime.now())+'][INFO] '+(fmt % args))
 
 class DAG:
-    def __init__(self, tasks, filter_regex='', execute_dependents=False):
+    def __init__(self, tasks, filter_regex='', execute_dependents=False,
+        force_run=False):
         self.execute_dependents = execute_dependents
+        self.force_run = force_run
         if filter_regex:
             self.tasks = filter(
                 lambda x: re.search(filter_regex, x.get_full_id()), tasks)
@@ -38,6 +43,8 @@ class DAG:
 
         # probably a dumb way to do this but whatever
         for task in self.tasks:
+            if self.force_run:
+                task.set_force_run()
             for dependent_task in task.dependencies:
                 if dependent_task.get_full_id() not in downstream_tasks:
                     downstream_tasks[dependent_task.get_full_id()] = Set()
@@ -99,6 +106,7 @@ class Task:
         self.dependencies = dependencies
         self.setkwargs(**kwargs)
         self._date_period_offset = 0
+        self.force_run = False
 
     def get_full_id(self):
         return self._full_id + '(offset=%d)' % self._date_period_offset
@@ -112,6 +120,9 @@ class Task:
     def depends_on(self, *args):
         self.dependencies.extend(args)
         return self
+
+    def set_force_run(self):
+        self.force_run = True
 
     def run(self, date_period):
         if self._date_period_offset != 0:
@@ -146,6 +157,10 @@ class PandasTask(Task):
         self.csv = kwargs['csv']
 
     def doit(self, date_period):
+        filepath = date_period.get_data_file(self.csv)
+        if path.exists(filepath) and not self.force_run:
+            info('File %s already exists. Skipping', filepath)
+            return
         results = self.func(date_period)
         filepath = date_period.get_data_file(self.csv)
         results.to_csv(filepath)
