@@ -8,6 +8,8 @@ parser.add_argument('season_year', type=int)
 parser.add_argument('week', type=int)
 parser.add_argument('--season_type')
 parser.add_argument('--fill_weeks', nargs='?', type=int, default=1)
+parser.add_argument('--filter', nargs='?', type=str, default='')
+parser.add_argument('--execute_dependents', type=bool, default=False)
 args = parser.parse_args()
 
 task_module = args.module
@@ -16,9 +18,9 @@ week = int(args.week)
 
 module = import_module(task_module)
 tasks_to_run = module.TASKS
+filter_regex = str(args.filter)
 
-
-dag = DAG(tasks_to_run)
+dag = DAG(tasks_to_run, filter_regex, args.execute_dependents)
 
 fill_weeks = int(args.fill_weeks)
 period = DatePeriod(season_year, week)

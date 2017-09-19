@@ -3,21 +3,34 @@ from sets import Set
 import copy
 import datetime
 import inspect
+import re
 
 DEBUG = True
+INDENT = 0
+
 def debug(fmt, *args):
     if not DEBUG:
         return
+    indent = ''
+    for i in range(INDENT):
+        indent += '  '
 
-    print('['+str(datetime.datetime.now())+'][DEBUG] '+(fmt % args))
+    print(indent+'['+str(datetime.datetime.now())+'][DEBUG] '+(fmt % args))
 
 def info(fmt, *args):
-    print('['+str(datetime.datetime.now())+'][INFO] '+(fmt % args))
+    indent = ''
+    for i in range(INDENT):
+        indent += '  '
+    print(indent+'['+str(datetime.datetime.now())+'][INFO] '+(fmt % args))
 
 class DAG:
-    def __init__(self, tasks, filter_regex=''):
-        self.tasks = tasks
-        self.filter_regex = filter_regex
+    def __init__(self, tasks, filter_regex='', execute_dependents=False):
+        self.execute_dependents = execute_dependents
+        if filter_regex:
+            self.tasks = filter(
+                lambda x: re.search(filter_regex, x.get_full_id()), tasks)
+        else:
+            self.tasks = tasks
 
     def run(self, period):
         # find the leaf nodes
@@ -40,8 +53,13 @@ class DAG:
         def recurse(task):
             if task.get_full_id() in executed_tasks:
                 return
+
+            executed_tasks.add(task.get_full_id())
             for dependent_task in task.dependencies:
-                recurse(dependent_task)
+                if self.execute_dependents:
+                    recurse(dependent_task)
+                else:
+                    info('skipping %s', dependent_task.get_full_id())
             task.run(period)
         for task_to_execute in tasks_to_execute:
             recurse(task_to_execute)
@@ -91,13 +109,20 @@ class Task:
     def doit(self, date_period):
         raise NotImplementedError()
 
+    def depends_on(self, *args):
+        self.dependencies.extend(args)
+        return self
+
     def run(self, date_period):
         if self._date_period_offset != 0:
             date_period = date_period.offset(self._date_period_offset)
 
         info('Running Task %s for Season %d Week %d', self.get_full_id(),
             date_period.season_year, date_period.week)
+        global INDENT
+        INDENT += 1
         self.doit(date_period)
+        INDENT -= 1
 
     def date_period_offset(self, offset):
         other = copy.copy(self)
@@ -105,9 +130,19 @@ class Task:
         return other
 
 
-class NFLDBQueryTask(Task):
+def pandas_task(csv):
+    def wrapper(func_to_wrap):
+        return PandasTask(
+            id=func_to_wrap.__name__,
+            func=func_to_wrap,
+            csv=csv,
+        )
+    return wrapper
+
+
+class PandasTask(Task):
     def setkwargs(self, **kwargs):
-        self.func = kwargs['nfldb_func']
+        self.func = kwargs['func']
         self.csv = kwargs['csv']
 
     def doit(self, date_period):
