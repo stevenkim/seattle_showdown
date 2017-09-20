@@ -220,19 +220,6 @@ def qb_season_dvoa(period):
     return sums
 
 
-@base.pandas_task(csv='dvoa_passing_agg.csv')
-def qb_passing_dvoa_agg(period):
-    # start at season 2016
-    frames = []
-    while period.season_year >= 2016 and period.week >= 1:
-        frames.append(pd.read_csv(
-            period.get_data_file('dvoa_passing_avg_weekly.csv')))
-        period = period.offset(-1)
-    df = pd.concat(frames).groupby(['down', 'yardline', 'yards_to_go']).sum()
-    df['avg_fantasy_points'] = df['fantasy_points'] / df['count']
-    return df
-
-
 TASKS=[
     qb_season_dvoa.depends_on(
         qb_season_averages,
