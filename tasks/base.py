@@ -26,33 +26,46 @@ def info(fmt, *args):
         indent += '  '
     print(__get_indent()+'['+str(datetime.datetime.now())+'][INFO] '+(fmt % args))
 
-    
+
 class DAG:
     def __init__(self, tasks, filter_regex='', execute_dependents=False,
         force_run=False):
+
+        all_tasks = {}
+        def recurse(task):
+            if task.get_full_id() in all_tasks:
+                return
+            for dep_task in task.dependencies:
+                recurse(dep_task)
+            all_tasks[task.get_full_id()] = task
+        for task in tasks:
+            recurse(task)
+
         self.execute_dependents = execute_dependents
         self.force_run = force_run
-        if filter_regex:
-            self.tasks = filter(
-                lambda x: re.search(filter_regex, x.get_full_id()), tasks)
-        else:
-            self.tasks = tasks
+        self.filter_regex = filter_regex
+        self.tasks = all_tasks
 
     def run(self, period):
         # find the leaf nodes
         downstream_tasks = {}
 
+        tasks = self.tasks
+        if self.filter_regex:
+            tasks = { k: v for (k, v) in tasks.items() \
+                if re.search(self.filter_regex, k)}
+
         # probably a dumb way to do this but whatever
-        for task in self.tasks:
-            if self.force_run:
-                task.set_force_run()
+        for task_id in tasks:
+            task = tasks[task_id]
             for dependent_task in task.dependencies:
                 if dependent_task.get_full_id() not in downstream_tasks:
                     downstream_tasks[dependent_task.get_full_id()] = Set()
                 downstream_tasks[dependent_task.get_full_id()].add(task.get_full_id())
 
         leaf_tasks = []
-        for task in self.tasks:
+        for task_id in tasks:
+            task = tasks[task_id]
             if task.get_full_id() not in downstream_tasks:
                 leaf_tasks.append(task)
 
@@ -68,6 +81,8 @@ class DAG:
                     recurse(dependent_task)
                 else:
                     info('skipping %s', dependent_task.get_full_id())
+            if self.force_run:
+                task.set_force_run()
             task.run(period)
         for task_to_execute in tasks_to_execute:
             recurse(task_to_execute)
@@ -101,7 +116,7 @@ class DatePeriod:
 
 class Task:
     def __init__(self, id, dependencies=[], **kwargs):
-        frame = inspect.stack()[1]
+        frame = inspect.stack()[2]
         module = inspect.getmodule(frame[0])
         self._full_id = module.__name__ + '.' + id
         self.dependencies = dependencies
@@ -119,7 +134,7 @@ class Task:
         raise NotImplementedError()
 
     def depends_on(self, *args):
-        self.dependencies.extend(args)
+        self.dependencies = list(args)
         return self
 
     def set_force_run(self):
@@ -141,6 +156,8 @@ class Task:
         other._date_period_offset = offset
         return other
 
+    def __str__(self):
+         return self.get_full_id()
 
 def pandas_task(csv):
     def wrapper(func_to_wrap):
