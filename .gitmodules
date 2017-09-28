@@ -1,0 +1,3 @@
+[submodule "submodules/nfldb"]
+	path = submodules/nfldb
+	url = https://github.com/BurntSushi/nfldb.git
