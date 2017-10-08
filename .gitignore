@@ -4,3 +4,4 @@ config.ini
 *.pyc
 .ipynb_checkpoints
 data
+settings.py

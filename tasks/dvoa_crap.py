@@ -1,4 +1,4 @@
-import base
+from core.tasks import pandas_task
 import json
 import nfldb
 import numpy as np
@@ -149,21 +149,21 @@ def _position_averages_by_player(period, number_of_weeks, position):
     players.columns = ["_".join(x) for x in players.columns.ravel()]
     return players
 
-@base.pandas_task('qb_averages_17.csv')
+@pandas_task('qb_averages_17.csv')
 def qb_averages_17(period):
     '''
     QB Averages across all players. Used as a baseline
     '''
     return _position_averages(period, 17, 'QB')
 
-@base.pandas_task('qb_averages_by_player_17.csv')
+@pandas_task('qb_averages_by_player_17.csv')
 def qb_averages_by_player_17(period):
     '''
     QB Averages for each player for that past season's worth of games
     '''
     return _position_averages_by_player(period, 17, 'QB')
 
-@base.pandas_task('qb_fdvoa_17.csv')
+@pandas_task('qb_fdvoa_17.csv')
 def qb_fdvoa_17(period):
     qbs = pd.read_csv(period.get_data_file('qb_averages_by_player_17.csv'))
 

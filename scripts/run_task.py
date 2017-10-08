@@ -1,5 +1,5 @@
 import argparse
-from tasks.base import DAG, DatePeriod, Task
+from core.dag import DAG, DatePeriod
 from importlib import import_module
 
 parser = argparse.ArgumentParser(description="Run some tasks")
