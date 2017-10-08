@@ -7,11 +7,12 @@ import pprint
 from utils import classify_play, fantasy_points
 
 
-def _get_dataframe(period, number_of_weeks, position):
+def get_dataframe(period, number_of_weeks, position):
     db = nfldb.connect()
     df = pd.DataFrame(columns=[
         'player_id',
         'player_name',
+        'week',
         'def',
         'down',
         'yardline',
@@ -55,6 +56,7 @@ def _get_dataframe(period, number_of_weeks, position):
             df.loc[index] = [
                 play_player.player.player_id,
                 play_player.player.full_name,
+                period.week,
                 defense,
                 classified['down'],
                 classified['yardline'],

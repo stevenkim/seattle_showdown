@@ -1,3 +1,6 @@
 [submodule "submodules/nfldb"]
 	path = submodules/nfldb
 	url = https://github.com/BurntSushi/nfldb.git
+[submodule "submodules/nflgame"]
+	path = submodules/nflgame
+	url = https://github.com/BurntSushi/nflgame.git

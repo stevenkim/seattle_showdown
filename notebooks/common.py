@@ -1,7 +1,9 @@
 import pandas as pd
 import sys
 sys.path.append('../')
-sys.path.append('../submodules/nfldb/nfldb')
+sys.path.append('../submodules/nfldb')
+
+import os
 import tasks.base as base
 import tasks.dvoa_crap as dvoa
 import numpy as np
