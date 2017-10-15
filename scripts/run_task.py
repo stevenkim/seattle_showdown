@@ -1,4 +1,6 @@
+import scripts
 import argparse
+
 from core.dag import DAG, DatePeriod
 from importlib import import_module
 
