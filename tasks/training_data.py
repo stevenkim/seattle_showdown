@@ -70,6 +70,7 @@ def training_wr(period):
             formatted[stat][player_tuple] = value
 
     df = pd.DataFrame(formatted)
+    df.index.set_names(['player_id', 'player_name'], inplace=True)
     return df
 
 TASKS = [

@@ -72,3 +72,27 @@ class PandasTask(Task):
         results = self.func(date_period)
         filepath = date_period.get_data_file(self.csv)
         results.to_csv(filepath)
+
+
+def scikit_task(model_name):
+    def wrapper(func_to_wrap):
+        return ScikitTask(
+            id=func_to_wrap.__name__,
+            func=func_to_wrap,
+            model_name=model_name,
+        )
+    return wrapper
+
+
+class ScikitTask(Task):
+    def setkwargs(self, **kwargs):
+        self.func = kwargs['func']
+        self.model_name = kwargs['model_name']
+
+    def doit(self, date_period):
+        filepath = date_period.get_data_file(self.model_name + ".model")
+        if path.exists(filepath) and not self.force_run:
+            log.info('File %s already exists. Skipping', filepath)
+            return
+        results = self.func(date_period)
+        # save this to a file
