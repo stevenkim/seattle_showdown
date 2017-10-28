@@ -1,6 +1,7 @@
 from core.tasks import scikit_task
 from sklearn import linear_model
 from sklearn.metrics import mean_squared_error, r2_score
+from training_data import training_wr
 
 import math
 import numpy as np
@@ -26,20 +27,35 @@ def train_model(model, period):
     test = df[~mask]
 
     training_y = training['receiving_yds']
-    training_x = training.drop('receiving_yds', axis=1)
+    training_x = training.drop([
+        'receiving_tar',
+        'receiving_yds',
+        'receiving_rec',
+        'receiving_tds',
+        'rushing_yds',
+        'rushing_tds',
+        'rushing_att',
+    ], axis=1)
 
     model = linear_model.LinearRegression()
     model.fit(training_x, training_y)
 
     test = test[test['receiving_yds'] > 10]
     test_y = test['receiving_yds']
-    test_x = test.drop('receiving_yds', axis=1)
+    test_x = test.drop([
+        'receiving_tar',
+        'receiving_yds',
+        'receiving_rec',
+        'receiving_tds',
+        'rushing_yds',
+        'rushing_tds',
+        'rushing_att',
+    ], axis=1)
 
     pred_y = model.predict(test_x)
 
     results = pd.DataFrame(test_y.reset_index())
     results['pred_y'] = pred_y
-    print results
 
     print "Mean squared error: %.2f" % mean_squared_error(test_y, pred_y)
     print "RMSE: %.2f" % math.sqrt(mean_squared_error(test_y, pred_y))
@@ -51,7 +67,7 @@ def train_model(model, period):
 def train_wr_receiving_yds(period):
     return train_model(linear_model.LinearRegression(), period)
 
-
 TASKS = [
-    train_wr_receiving_yds,
+    train_wr_receiving_yds.depends_on(
+        training_wr),
 ]

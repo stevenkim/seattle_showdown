@@ -1,7 +1,9 @@
 from os import path
 
+import copy
 import inspect
 import log
+import pickle
 
 class Task:
     '''
@@ -95,4 +97,5 @@ class ScikitTask(Task):
             log.info('File %s already exists. Skipping', filepath)
             return
         results = self.func(date_period)
-        # save this to a file
+        with open(filepath, 'w') as f:
+            pickle.dump(results, f)
