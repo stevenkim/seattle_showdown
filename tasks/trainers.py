@@ -1,6 +1,7 @@
 from core.tasks import scikit_task
 from sklearn import linear_model
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import cross_val_score, cross_val_predict
 from training_data import training_wr
 
 import math
@@ -20,14 +21,11 @@ def get_dataframe(period):
 
 def train_model(model, period):
     df = get_dataframe(period)
-    df = df.drop(['def', 'day_of_week'], axis=1)
-
-    mask = np.random.rand(len(df)) < .8
-    training = df[mask]
-    test = df[~mask]
-
-    training_y = training['receiving_yds']
-    training_x = training.drop([
+    target = df['receiving_yds']
+    # remove this weeks data for training duh
+    training = df.drop([
+        'def',
+        'day_of_week',
         'receiving_tar',
         'receiving_yds',
         'receiving_rec',
@@ -37,37 +35,37 @@ def train_model(model, period):
         'rushing_att',
     ], axis=1)
 
-    model = linear_model.LinearRegression()
-    model.fit(training_x, training_y)
+    predicted = cross_val_predict(model, training, target)
+    results = pd.DataFrame(target.reset_index())
+    results['pred_y'] = predicted
+    # print results
 
-    test = test[test['receiving_yds'] > 10]
-    test_y = test['receiving_yds']
-    test_x = test.drop([
-        'receiving_tar',
-        'receiving_yds',
-        'receiving_rec',
-        'receiving_tds',
-        'rushing_yds',
-        'rushing_tds',
-        'rushing_att',
-    ], axis=1)
-
-    pred_y = model.predict(test_x)
-
-    results = pd.DataFrame(test_y.reset_index())
-    results['pred_y'] = pred_y
-
-    print "Mean squared error: %.2f" % mean_squared_error(test_y, pred_y)
-    print "RMSE: %.2f" % math.sqrt(mean_squared_error(test_y, pred_y))
-    print "Variance score: %.2f" % r2_score(test_y, pred_y)
-
+    print model
+    print "Mean squared error: %.2f" % mean_squared_error(target, predicted)
+    print "RMSE: %.2f" % math.sqrt(mean_squared_error(target, predicted))
+    print "Variance score: %.2f\n" % r2_score(target, predicted)
     return model
 
 @scikit_task('wr.receiving_yds.linear_regression')
-def train_wr_receiving_yds(period):
+def train_wr_receiving_yds_linear_regression(period):
     return train_model(linear_model.LinearRegression(), period)
 
+@scikit_task('wr.receiving_yds.ridge')
+def train_wr_receiving_yds_ridge(period):
+    return train_model(linear_model.RidgeCV(), period)
+
+@scikit_task('wr.receiving_yds.lasso')
+def train_wr_receiving_yds_lasso(period):
+    return train_model(linear_model.Lasso(), period)
+
+@scikit_task('wr.receiving_yds.logistic_regression')
+def train_wr_receiving_yds_logistic_regression(period):
+    return train_model(linear_model.LogisticRegression(), period)
+
+training_data_tasks = [training_wr.date_period_offset(-1 * x) for x in range(0, 17)]
 TASKS = [
-    train_wr_receiving_yds.depends_on(
-        training_wr),
+    train_wr_receiving_yds_linear_regression.depends_on(*training_data_tasks),
+    train_wr_receiving_yds_logistic_regression.depends_on(*training_data_tasks),
+    train_wr_receiving_yds_ridge.depends_on(*training_data_tasks),
+    train_wr_receiving_yds_lasso.depends_on(*training_data_tasks),
 ]

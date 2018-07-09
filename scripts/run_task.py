@@ -1,5 +1,6 @@
 import scripts
 import argparse
+import core.log
 
 from core.dag import DAG, DatePeriod
 from importlib import import_module
@@ -13,11 +14,14 @@ parser.add_argument('--fill_weeks', nargs='?', type=int, default=1)
 parser.add_argument('--filter', nargs='?', type=str, default='')
 parser.add_argument('--execute_dependents', type=bool, default=False)
 parser.add_argument('--force_run', type=bool, default=False)
+parser.add_argument('--log_level', nargs='?', type=int, default=1)
 args = parser.parse_args()
 
 task_module = args.module
 season_year = int(args.season_year)
 week = int(args.week)
+
+core.log.LEVEL = args.log_level
 
 module = import_module(task_module)
 tasks_to_run = module.TASKS

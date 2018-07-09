@@ -1,6 +1,7 @@
 import datetime
 
 DEBUG = True
+LEVEL = 1
 INDENT = 0
 
 def __get_indent():
@@ -11,11 +12,14 @@ def __get_indent():
 
 
 def debug(fmt, *args):
-    if not DEBUG:
+    if LEVEL > 0:
         return
     print(__get_indent()+'['+str(datetime.datetime.now())+'][DEBUG] '+(fmt % args))
 
 def info(fmt, *args):
+    if LEVEL > 1:
+        return
+
     indent = ''
     for i in range(INDENT):
         indent += '  '

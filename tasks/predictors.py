@@ -1,6 +1,6 @@
 from core.tasks import pandas_task
 from scrapers import fantasy_sharks_wr
-from trainers import train_wr_receiving_yds
+from trainers import train_wr_receiving_yds_linear_regression
 
 import pandas as pd
 import pickle
@@ -32,5 +32,5 @@ def wr_receiving_yds_predict(period):
 TASKS=[
     wr_receiving_yds_predict.depends_on(
         fantasy_sharks_wr,
-        train_wr_receiving_yds.date_period_offset(-1)),
+        train_wr_receiving_yds_linear_regression.date_period_offset(-1)),
 ]

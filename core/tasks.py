@@ -62,6 +62,9 @@ def pandas_task(csv):
 
 
 class PandasTask(Task):
+    '''
+    Output of the function must be a Pandas DataFrame object.
+    '''
     def setkwargs(self, **kwargs):
         self.func = kwargs['func']
         self.csv = kwargs['csv']
@@ -87,6 +90,9 @@ def scikit_task(model_name):
 
 
 class ScikitTask(Task):
+    '''
+    Output of the function must be a Scikit model
+    '''
     def setkwargs(self, **kwargs):
         self.func = kwargs['func']
         self.model_name = kwargs['model_name']
