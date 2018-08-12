@@ -1,0 +1,4 @@
+# Cheat Sheet
+
+## Connect to db
+psql -h localhost -U nfldb nfldb
