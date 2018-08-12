@@ -19,7 +19,6 @@ def debug(fmt, *args):
 def info(fmt, *args):
     if LEVEL > 1:
         return
-
     indent = ''
     for i in range(INDENT):
         indent += '  '

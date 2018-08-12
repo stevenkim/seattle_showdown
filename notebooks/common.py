@@ -4,7 +4,7 @@ sys.path.append('../')
 sys.path.append('../submodules/nfldb')
 
 import os
-import tasks.base as base
+import core.tasks as tasks
 import tasks.dvoa_crap as dvoa
 import numpy as np
 import matplotlib.pyplot as plt

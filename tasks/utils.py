@@ -51,3 +51,14 @@ def classify_play(play):
         'yardline': normalize_yardage(play.yardline),
         'yards_to_go': normalize_yards_to_go(play.yards_to_go),
     }
+
+def normalize_day_of_week(day):
+    translation = {
+        'Sunday': 1,
+        'Monday': 2,
+        'Tuesday': 3,
+        'Wednesday': 4,
+        'Thursday': 5,
+        'Friday': 6,
+        'Saturday': 7,
+    }

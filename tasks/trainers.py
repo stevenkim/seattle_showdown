@@ -21,19 +21,10 @@ def get_dataframe(period):
 
 def train_model(model, period):
     df = get_dataframe(period)
-    target = df['receiving_yds']
+    target = df['receiving_yds_0']
     # remove this weeks data for training duh
-    training = df.drop([
-        'def',
-        'day_of_week',
-        'receiving_tar',
-        'receiving_yds',
-        'receiving_rec',
-        'receiving_tds',
-        'rushing_yds',
-        'rushing_tds',
-        'rushing_att',
-    ], axis=1)
+    training_columns = [c for c in df.columns if not c.endswith('_0')]
+    training = df[training_columns]
 
     predicted = cross_val_predict(model, training, target)
     results = pd.DataFrame(target.reset_index())
